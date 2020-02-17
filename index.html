@@ -1,0 +1,555 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>Gotowe rozwiązania NLP od Amazona i Google</title>
+
+        <link rel="stylesheet" href="css/reset.css">
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/black.css">
+
+        <!-- Theme used for syntax highlighting of code -->
+        <link rel="stylesheet" href="lib/css/monokai.css">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+
+                <section>
+                    <h1>Gotowe rozwiązania NLP</h1>
+                    <p>od Amazona i Google</p>
+                    <p><img src="assets/dw-logo.png" style="width: 300px; border: 0px"></p>
+                </section>
+
+                <section>
+                    <h3>Paweł Dulak</h3>
+                    <ul>
+                        <li>programista / PM w Binary Minds</li>
+                        <li>ColdFusion</li>
+                        <li>AWS</li>
+                        <li>Security</li>
+                        <li>Practical machine learning</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3>Jest tyle rozwiązań NLP...</h3>
+                    <img src="assets/python-nlp-library-google.png" style="width: 70%" />
+                    <aside class="notes">
+                        <ul>
+                            <li>Po co więc szukać gotowych modeli?</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Plusy</h3>
+                    <ul>
+                        <li>działa od pierwszej minuty</li>
+                        <li>bez trenowania modelu</li>
+                        <li>dobry, stabilny model</li>
+                        <li>hosting modelu (silnika), API</li>
+                    </ul>
+                    <aside class="notes">
+                        <ul>
+                            <li>Nie trzeba tracić czasu na trening, testy itp</li>
+                            <li>Nie trzeba gromadzić dużej ilości danych do trenowania modelu</li>
+                            <li>odpada czas na testy</li>
+                            <li>nie musimy wymyślać sposobu na łączenie się z modelem, używamy API, gotowych bibliotek, nie martwi nas SKALOWANIE!</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Minusy</h3>
+                    <ul>
+                        <li>opłaty</li>
+                        <li>brak (małe) możliwości modyfikacji</li>
+                        <li>ograniczona lista obsługiwanych języków</li>
+                        <li>brak kontroli</li>
+                    </ul>
+                    <aside class="notes">
+                        <ul>
+                            <li>przy dużych ilościach danych może się bardziej opłacać mieć własny model - ale tutaj też hosting itp</li>
+                            <li>trudno będzie zastosować do specyficznych sytuacji lub specyficznych danych</li>
+                            <li>można oczywiście tłumaczyć automatycznie, ale wtedy znowu dochodzi testowanie czy te tłumaczenia są w porządku</li>
+                            <li>nad produktem - jak go zechcą wyłączyć to wyłączą albo zmienią model i wyniki się zmienią</li>
+                            <li>nad danymi - niby nie zapisują Twoich danych, ale nie do końca wiadomo co z nimi robią</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Amazon Comprehend</h3>
+                    <a href="https://aws.amazon.com/comprehend/">https://aws.amazon.com/comprehend/</a>
+                    <img src="assets/comprehend-how-it-works.png">
+                    <aside class="notes">
+                        <ul>
+                            <li>Używamy ze względu na to że jestem codziennie blisko infrastruktury Amazona, najszybsze wdrożenie</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Amazon Comprehend</h3>
+                    <ul>
+                        <li>Keyphrase Extraction</li>
+                        <li>Sentiment Analysis</li>
+                        <li>Entity Recognition</li>
+                        <li>Medical Information Extraction</li>
+                        <li>Language Detection</li>
+                        <li>Topic Modeling</li>
+                        <li>Custom Entities</li>
+                        <li>Custom Classification</li>
+                    </ul>
+                    <aside class="notes">
+                        <ul>
+                            <li>wyszukiwanie słów kluczowych</li>
+                            <li>analiza wydźwięku</li>
+                            <li>wyszukiwanie obiektów, jednostek</li>
+                            <li>wyszukiwanie informacji medycznych</li>
+                            <li>rozpoznawanie języka</li>
+                            <li>wyodrębnianie tematów o których jest mowa w dokumencie</li>
+                            <li>Custom Entities - Comprehend uczy się na małym zbiorze obiektów rozpoznawać obiekty charakterystyczne dla danego obszaru (wymaga do wytrenowania około 200 dokumentów dla każdego obiektu)</li>
+                            <li>Custom Classification - klasyfikacja według własnych wytycznych (wymaga do wytrenowania około 1000 dokumentów dla każdej etykiety/grupy)</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Amazon Comprehend</h3>
+                    <p>ile to kosztuje?</p>
+                    <img src="assets/comprehend-pricing.png">
+                    <p>10.000 komentarzy &asymp; 12 dolarów</p>
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Amazon Comprehend</h3>
+                    <pre><code class="hljs python" data-trim>
+import boto3
+
+#initialize comprehend module
+c = boto3.client(service_name='comprehend', \
+    region_name='us-east-1')
+
+#call comprehend methods
+sentiment = c.detect_sentiment(Text=comments, \
+    LanguageCode='en')
+
+keyphrases = c.detect_key_phrases(Text=comments, \
+    LanguageCode='en')</code></pre>
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Amazon Comprehend</h3>
+                    <pre>'Edwin was very polite and knowledgeable,
+he answered some questions I had about the Eagle App.
+I was very happy with his service'</pre>
+                    <pre><code class="hljs" data-trim>
+# -- key phrases --
+[
+    {"Text": "Edwin", "Score": 0.9967, "BeginOffset": 0, "EndOffset": 5},
+    {"Text": "some questions", "Score": 0.9907, "BeginOffset": 53, "EndOffset": 67},
+    {"Text": "the Eagle App", "Score": 0.9971, "BeginOffset": 80, "EndOffset": 93}
+]
+</code></pre>
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Amazon Comprehend</h3>
+                    <pre>'Edwin was very polite and knowledgeable,
+he answered some questions I had about the Eagle App.
+I was very happy with his service'</pre>
+                    <pre><code class="hljs" data-trim>
+# -- entities --
+[
+    {"Text": "Edwin", "Score": 0.9948, "Type": "PERSON", "BeginOffset": 0, "EndOffset": 5},
+    {"Text": "Eagle App", "Score": 0.8695, "Type": "TITLE", "BeginOffset": 84, "EndOffset": 93}
+]
+</code></pre>
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Amazon Comprehend</h3>
+                    <p>'Ramon was professional and knowledgeable. I was in a bit of a rush and Ramon was accommodating to my schedule and helped me as quickly and efficiently as he could. This was the second time I had seen Ramon, and he did great both times.'</p>
+                    <pre><code class="hljs" data-trim>
+# -- entities --
+[
+    {"Text": "Ramon", "Score": 0.9865, "Type": "PERSON", "BeginOffset": 0, "EndOffset": 5},
+    {"Text": "Ramon", "Score": 0.9977, "Type": "PERSON", "BeginOffset": 71, "EndOffset": 76},
+    {"Text": "second time", "Score": 0.9089, "Type": "QUANTITY", "BeginOffset": 177, "EndOffset": 188},
+    {"Text": "Ramon", "Score": 0.9937, "Type": "PERSON", "BeginOffset": 200, "EndOffset": 205},
+    {"Text": "both times", "Score": 0.7855, "Type": "QUANTITY", "BeginOffset": 224, "EndOffset": 234}
+]
+</code></pre>
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Amazon Comprehend</h3>
+                    <pre>'Edwin was very polite and knowledgeable,
+he answered some questions I had about the Eagle App.
+I was very happy with his service'</pre>
+                    <pre><code class="hljs" data-trim>
+# -- sentiment --
+{
+    "SentimentScore": {
+        "Mixed": 0.004272643011063337,
+        "Positive": 0.9859381318092346,
+        "Neutral": 0.009591725654900074,
+        "Negative": 0.00019745792087633163
+    },
+    "Sentiment": "POSITIVE"
+}
+</code></pre>
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Amazon Translate</h3>
+                    <a href="https://aws.amazon.com/translate/">https://aws.amazon.com/translate/</a>
+                    <img src="assets/translate-languages.png">
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+
+                <section>
+                    <h3>Google Natural Language</h3>
+                    <a href="https://cloud.google.com/natural-language/">https://cloud.google.com/natural-language/</a>
+                    <img src="assets/google-natural-language.png">
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Google Natural Language</h3>
+                    <ul>
+                        <li>Syntax Analysis</li>
+                        <li>Entity Analysis</li>
+                        <li>Sentiment Analysis</li>
+                        <li>Content Classification</li>
+                    </ul>
+                    <aside class="notes">
+                        <ul>
+                            <li>Wyodrębnianie istotnych słów i sentencji/zdań, identyfikacja części mowy, tworzenie drzewa zależności</li>
+                            <li>rozpoznawanie obiektów</li>
+                            <li>analiza wydźwięku</li>
+                            <li>klasyfikacja - ponad 700 predefiniowanych kategorii</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Google Natural Language</h3>
+                    <a href="https://cloud.google.com/automl/">https://cloud.google.com/automl/</a>
+                    <img src="assets/google-human.png">
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Google Natural Language</h3>
+                    <p>ile to kosztuje?</p>
+                    <img src="assets/google-pricing.png" style="height: 600px">
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Google Natural Language</h3>
+                    <pre><code class="hljs python" data-trim>
+from google.cloud import language_v1
+from google.cloud.language_v1 import enums
+
+#initialize module
+client = language_v1.LanguageServiceClient()
+#prepare document
+type_ = enums.Document.Type.PLAIN_TEXT
+language = "en"
+document = {"content": text_content, "type": type_, \
+    "language": language}
+encoding_type = enums.EncodingType.UTF8
+#analyze sentiment
+response = client.analyze_sentiment(document, \
+    encoding_type=encoding_type)</code></pre>
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Google Natural Language</h3>
+                    <img src="assets/google-1.png" >
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Google Natural Language</h3>
+                    <img src="assets/google-2.png" >
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Google Natural Language</h3>
+                    <img src="assets/google-3.png" style="height: 600px">
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Google Translation</h3>
+                    <a href="https://cloud.google.com/translate/">https://cloud.google.com/translate/</a>
+                    <p>ponad 100 języków</p>
+                    <img src="assets/google-translation.png">
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Przypadek naszego klienta</h3>
+                    <ul>
+                        <li>Potrzeba analizy wydźwięku komentarzy (konkurencja już miała takie rozwiązanie)</li>
+                        <li>Potrzeba kategoryzacji komentarzy</li>
+                    </ul>
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Dlaczego wybraliśmy AWS</h3>
+                    <ul>
+                        <li>brak danych do trenowania modelu</li>
+                        <li>brak doświadczenia</li>
+                        <li>budżet</li>
+                    </ul>
+                    <aside class="notes">
+                        <ul>
+                            <li>No, trochę miał - przysłał po dwa przykłady komentarzy które powinny trafić do poszczególnych kategorii</li>
+                            <li>moje doświadczenie z NLP było mizerne, nie byłem pewien czy dam radę uzyskać wyniki które będą zadowalające</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Co z tego mamy</h3>
+                    <img src="assets/sentiment-trend.png">
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Co z tego mamy</h3>
+                    <ul>
+                        <li>niemal 140 000 komentarzy w 14 miesięcy</li>
+                        <li>wyniki widoczne od razu</li>
+                        <li>pierwszy krok do czegoś dalej</li>
+                        <li>doświadczenie</li>
+                        <li>dane</li>
+                    </ul>
+                    <aside class="notes">
+                        <ul>
+                            <li>a to wszystko za niecałe parę dolarów miesięcznie</li>
+                            <li>brak czasu na wdrożenie, zadowolenie klienta i jego klientów</li>
+                            <li>kiedy okazuje się że ML jest użyteczne, pojawia się chęć dalszego wykorzystania. Obecnie zbieramy dane do wytrenowania modelu do kategoryzacji komentarzy</li>
+                            <li>teraz łatwiej nam zobaczyć co można zrobić lepiej, co jest tak naprawdę potrzebne klientowi</li>
+                            <li>możemy się pokusić o wytrenowanie własnego modelu</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Niespodzianki</h3>
+                    <pre><code class="hljs json" data-trim>
+{ "No errors" :
+    [ "Amazon": "Negative", "Google": "positive 0.5" ] }
+
+{ "none!!!!!!!" :
+    [ "Amazon": "Negative", "Google": "neutral 0" ] }
+
+{ "Nothing everything good." :
+    [ "Amazon": "Negative", "Google": "negative -0.4" ] }
+
+{ "No improvement needed" :
+    [ "Amazon": "Negative", "Google": "neutral 0" ] }
+
+{ "She did well. No suggestions." :
+    [ "Amazon": "Negative", "Google": "neutral 0" ] }
+</code></pre>
+                    <aside class="notes">
+                        <ul>
+                            <li>około 5 000 poprawek na 140 000 komentarzy</li>
+                            <li>problem z krótkimi sentencjami</li>
+                            <li>należy dobrze wybierać pytanie do klienta - tutaj było "czy masz jakieś komentarze"</li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <img src="assets/fix-3.png" style="border: none">
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <pre><code class="hljs json" data-trim>
+{ "Should was on top of everything; there is nothing \
+    to add when you are a professional" :
+    [ "Amazon": "Negative", "Google": "Negative -0.6" ] }
+
+{ "Just like the others, Amanda was very young and was \
+    unable to make me feel like a valued member" :
+    [ "Amazon": "Positive", "Google": "mixed -0.2" ] }
+</code></pre>
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <img src="assets/niespodzianki-1.png">
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <img src="assets/niespodzianki-2.png">
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h3>Kropka nienawiści</h3>
+                    <pre><code class="hljs json" data-trim>
+{ "nothing" :
+    [ "negative": "0.4106", "neutral": "0.4772" ] }
+
+{ "Nothing." :
+    [ "negative": "0.5984", "neutral": "0.3081" ] }
+</code></pre>
+                    <img src="assets/kropka.png">
+                    <aside class="notes">
+                        <ul>
+                            <li></li>
+                        </ul>
+                    </aside>
+                </section>
+
+                <section>
+                    <h2>Dziękuję</h2>
+                    <p>Pytania?</p>
+                    <p style="margin: 0; font-size: 80%">
+                        <a href="https://www.linkedin.com/in/pawel-dulak/" style="display: flex; align-items:center; justify-content: center;"><img src="assets/In-Blue-40.png" style="border: 0px; margin-right:4px"><span>/pawel-dulak/</span></a>
+                    </p>
+                    <p style="margin: 0; font-size: 80%">
+                        <a href="https://github.com/pdulak" style="display: flex; align-items:center; justify-content: center;"><img src="assets/GitHub_Logo_White.png" style="height: 40px; border: 0px; margin-right:4px"><span>/pdulak</span></a>
+                    </p>
+                    <p style="margin: 0; font-size: 80%">
+                        pawel (at) dulak.pl
+                    </p>
+                    <p><img src="assets/dw-logo.png" style="width: 300px"></p>
+                </section>
+            </div>
+        </div>
+
+        <script src="js/reveal.js"></script>
+
+        <script>
+            // More info about config & dependencies:
+            // - https://github.com/hakimel/reveal.js#configuration
+            // - https://github.com/hakimel/reveal.js#dependencies
+            Reveal.initialize({
+                dependencies: [
+                    { src: 'plugin/markdown/marked.js' },
+                    { src: 'plugin/markdown/markdown.js' },
+                    { src: 'plugin/notes/notes.js', async: true },
+                    { src: 'plugin/highlight/highlight.js', async: true }
+                ]
+            });
+        </script>
+    </body>
+</html>
